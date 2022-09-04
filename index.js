@@ -19,7 +19,7 @@ app.use("/api/v1/", apiRouter);
 
 
 
-const PORT = parseInt(process.env.PORT);
+const PORT = parseInt(process.env.PORT) || 3000;
 
 
 
