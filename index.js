@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require('express');
 const { default: mongoose } = require("mongoose");
-const apiRouter = require("../Backend/api/api.v1");
+const apiRouter = require("./api/api.v1");
 const app = express();
 const cors = require("cors");
 app.use(express.urlencoded({extended:false}));
