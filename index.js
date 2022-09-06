@@ -16,9 +16,11 @@ app.get("/", (req, res)=>{
 })
 app.use("/api/v1/", apiRouter);
 
-
-
-
+// Error Handlling can be done here since this means that the route doesn't match any previous path.
+app.use( (err, req, res, next)=>{
+    console.error(err);
+    res.status(500).json({status: "Failed", message: err.message})
+})
 
 
 const PORT = parseInt(process.env.PORT) || 3000;
