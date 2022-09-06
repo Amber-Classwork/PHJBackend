@@ -10,18 +10,20 @@ class UsersController{
     
     static loginUser = async (req,res, next)=>{
         try{
-            let email = req.body.email;
-            let password = req.body.password;
+            let data = req.body;
+            let email = data.email;
+            let password = data.password;
             let user = await User.findOne({"email": email});
+            if(!user) throw new Error("User not found in the Database");
+            console.log(user)
             if(user){
-                let isAuthenticated = await bcrypt.compare(password,user.password)
-                if(isAuthenticated){
+                if(await user.passwordCorrect(password)){
+                    // console.log(user.passwordCorrect(password))
                     let token = generateJWTToken({_id:user._id,username:user.username, email: user.email, role:"user"},"3600")
                     return jsonResponse(res,200,"Success","Successfully Logged in",token);
                 }
-                return jsonResponse(res,401,"Failed","Credentials are Incorrect");
+                return jsonResponse(res,401,"Failed","Password is Incorrect");
             }
-            return jsonResponse(res,401,"Failed","User not Found");
         }catch(error){
             jsonResponse(res, 400,"Failed", error.message);
         }
@@ -48,7 +50,7 @@ class UsersController{
      static getUserById = async (req, res, next)=>{
         try{
             let id = req.params.id;
-            let user = await User.findById(id);
+            let user = await User.findById(id, {password: 0});
             return jsonResponse(res, 200,"Success", "Successfully retrieved", user)
         }catch(error){
             jsonResponse(res, 500, "Failed", error.message)
@@ -94,12 +96,11 @@ class UsersController{
 
                 let user = new User(data);
                 if(!user.password){
-                    user.password = (user.fname.slice(0,1)+"."+ user.lname).toUpperCase()
-                }
-                
-                user.password = await bcrypt.hash(user.password, 10);
-                await user.save()
-                return jsonResponse(res, 200, "Success", "Successfully Logged in")
+                    user.password = (user.fname.slice(0,1)+"."+ user.lname).toUpperCase();
+                }                
+                await user.save();
+                user.password = undefined;
+                return jsonResponse(res, 200, "Success", "Successfully Created User", user);
             }catch(error){
                 jsonResponse(res, 400, "Failed", error.message);
             }
