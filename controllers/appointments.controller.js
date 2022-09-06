@@ -11,9 +11,14 @@ class AppointmentController{
      */
     static  getAllAppointments = async(req, res, next) =>{
         try{
-            let query = req.query.userId;
-            if(query){
-                return this.getAppointmentsByUID(req, res, next);
+            if(Object.keys(req.query).length > 0){
+
+
+                if(req.query.userId){
+                    return this.getAppointmentsByUID(req, res, next);
+                }else{
+                    return jsonResponse(res, 404, "Failed", "The route paramater that you provided does not match any of the named parameters that we accept")
+                }
             }
             let appointments = await Appointment.find();
             jsonResponse(res, 200, "Success", "Successfully Retrieved", appointments);
@@ -33,7 +38,7 @@ class AppointmentController{
             if(appointment){
                 return jsonResponse(res, 200, "Success", "Successfully Retrieved", appointment);
             }
-            return jsonResponse(res, 400, "Failed","No user exist with that information");
+            return jsonResponse(res, 400, "Failed","No Appointment exist with that information");
         }catch(error){
             jsonResponse(res, 400, "Failed", error.message)
         }
@@ -93,27 +98,36 @@ class AppointmentController{
         }
     }
 
+    /**
+     * ### Description 
+     * Gets all appointments that matches an email that is passed in the route params
+     */
     static getAppointmentsByEmail = async(req, res, next) =>{
         try{
             let email = req.query.email;
-            console.log(email);
             if(email){
 
                 let appointments = await Appointment.find({"email": email});
-                console.log(appointments);
                 return jsonResponse(res, 200, "Success", "Successfully",appointments);
             }
         }catch(error){
             return jsonResponse(res, 400, "Failed", error.message);
         }
     }
+
+    /**
+     * ### Description 
+     * Gets the userId from the query which represents the user that creates the appointment. Then returns the appointment that matches that userId
+     */
     static getAppointmentsByUID = async(req, res, next) =>{
         try{
             let id = req.query.userId;
             if(id){
-
-                let appointments = await Appointment.find({"userId": id});
+                // populates the appointments that are found with the doctors information
+                let appointments = await Appointment.find({"userId": id}).populate("doctor", {password: 0, isSuperAdmin:0});
                 return jsonResponse(res, 200, "Success", "Successfully",appointments);
+            }else{
+                throw new Error("There is something wrong with the userId")
             }
         }catch(error){
             return jsonResponse(res, 400, "Failed", error.message);
