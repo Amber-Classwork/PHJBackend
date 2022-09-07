@@ -64,6 +64,7 @@ class UsersController{
         try{
             let id = req.params.id;
             let data = req.body;
+            data.imageUrl = req.file.location;          
             data.address = {street: data.street, city: data.city, parish: data.parish};
 
             let user = await User.findByIdAndUpdate(id, data, {new:true});
@@ -102,7 +103,8 @@ class UsersController{
                 user.password = undefined;
                 return jsonResponse(res, 200, "Success", "Successfully Created User", user);
             }catch(error){
-                jsonResponse(res, 400, "Failed", error.message);
+                console.log(error)
+                jsonResponse(res, 400, "Failed", "Failure");
             }
         }
 

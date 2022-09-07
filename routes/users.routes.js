@@ -1,6 +1,10 @@
 const router = require("express").Router();
 const UsersController = require("../controllers/users.controller");
-
+const { uploadFileToS3 } = require("../utilities/s3");
+const multer = require("multer");
+const upload = multer({
+    dest:"/upload/"
+})
 
 router
     .route("/")
@@ -10,7 +14,8 @@ router
 router
     .route("/:id")
     .get(UsersController.getUserById)
-    .patch(UsersController.updateUser)
+    .patch(uploadFileToS3.single("imageUrl"),UsersController.updateUser)
+
     .delete(UsersController.deleteUser)
 
 router
