@@ -20,7 +20,10 @@ const s3 = new AWS.S3({
 })
 
 
-// uploads file to s3 server
+/**
+ *  Description
+ * Multer option to chose storage path of file from requests to be sent to the aws instance that was defined. 
+ */
 const uploadFileToS3 = multer({
     storage: multerS3({
         s3,
