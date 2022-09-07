@@ -67,7 +67,8 @@ class UsersController{
         try{
             let id = req.params.id;
             let data = req.body;
-            data.imageUrl = req.file.location;          
+            // Checks to see if a file was uploaded if it was then it will set the location as the url, if not it removes that field from the data so it won't be overridden
+            data.imageUrl = (req.file) ? req.file.location : undefined;
             data.address = {street: data.street, city: data.city, parish: data.parish};
 
             let user = await User.findByIdAndUpdate(id, data, {new:true});
