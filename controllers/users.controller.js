@@ -15,12 +15,15 @@ class UsersController{
             let password = data.password;
             let user = await User.findOne({"email": email});
             if(!user) throw new Error("User not found in the Database");
-            console.log(user)
             if(user){
                 if(await user.passwordCorrect(password)){
                     // console.log(user.passwordCorrect(password))
                     let token = generateJWTToken({_id:user._id,username:user.username, email: user.email, role:"user"},"3600")
-                    return jsonResponse(res,200,"Success","Successfully Logged in",token);
+                    let data = {
+                        user,
+                        token
+                    }
+                    return jsonResponse(res,200,"Success","Successfully Logged in",data);
                 }
                 return jsonResponse(res,401,"Failed","Password is Incorrect");
             }
