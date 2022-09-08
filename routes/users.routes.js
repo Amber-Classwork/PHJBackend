@@ -1,10 +1,6 @@
 const router = require("express").Router();
 const UsersController = require("../controllers/users.controller");
 const { uploadFileToS3 } = require("../utilities/s3");
-const multer = require("multer");
-const upload = multer({
-    dest:"/upload/"
-})
 
 router
     .route("/")
