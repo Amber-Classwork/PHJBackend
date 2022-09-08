@@ -9,7 +9,7 @@ class PatientsController{
      * Gets all the patients from the database
      * 
      */
-    static async getAllPatients(req, res, next){
+    static getAllPatients = async(req, res, next) =>{
         try{
             let patients = await Patient.find();
             return jsonResponse(res, 200, "Success", "Successfully Retrieved", patients);
@@ -22,7 +22,7 @@ class PatientsController{
      * Gets a singles patient from the database where it matches the id that is found in the request parameters
      * 
      */
-    static async getSinglePatient(req, res, next){
+    static getSinglePatient = async(req, res, next)=>{
         try{
             let id = req.params.id;
             let patient = await Patient.findById(id);
@@ -38,10 +38,13 @@ class PatientsController{
      * ### Description
      * Creates a single patient with the data that is submitted in the request body
      */
-    static async createPatient(req, res, next){
+    static createPatient = async(req, res, next)=>{
         try{
-            
-            let newPatient = await new Patient(req.body).save();
+            let data = req.body;
+            if(Object.keys(data).length < 1){
+                throw new Error("No data was sent to create patient")
+            }
+            let newPatient = await new Patient(data).save();
             jsonResponse(res, 200, "Success", "Successfully Created Patient", newPatient);
         }catch(error){
             jsonResponse(res, 400,"Failed", error.message);
@@ -51,17 +54,17 @@ class PatientsController{
      * ### Description
      * Updates the patient with the data that is passed in the request body, and identifies the patient by the id passed in the request parameters
      */
-    static async updatePatient(req,res, next){
+    static  updatePatient = async(req,res, next)=>{
         try{
            let id = req.params.id;
            if(Object.keys(req.body).length == 0){
             return jsonResponse(res, 400,"Failed", "There is no data passed to update the patient");
            }else{
                 let patient = await Patient.findByIdAndUpdate(id,req.body)
-                jsonResponse(res,200, "Success","Successfully Updated",patient);
+                return jsonResponse(res,200, "Success","Successfully Updated",patient);
             }
         }catch(error){
-            jsonResponse(res, 404, "Failed","Unable to find Patient");
+            return jsonResponse(res, 404, "Failed","Unable to find Patient");
         }
 
 
@@ -70,13 +73,29 @@ class PatientsController{
      * ### Description
      * Deletes the patient that matches the id that is passed in the request url.
      */
-    static async deletePatient(req,res, next){
+    static  deletePatient = async(req,res, next)=>{
         try{
             let id = req.params.id;
-            await Patient.findByIdAndDelete(id);
-            jsonResponse(res, 200, "Success","Patient deleted")
+            let patient = await Patient.findByIdAndDelete(id);
+            if(!patient) throw new Error("Patient does not exist");
+            return jsonResponse(res, 200, "Success","Patient deleted")
         }catch(error){
-            jsonResponse(res,404,"Failed", error.message)
+            return jsonResponse(res,404,"Failed", error.message)
+        }
+    }
+
+    
+    static getPatientsByDoctor = async (req, res, next) =>{
+        try{
+            let doctor = req.query.admit_doctor;
+
+            if(doctor){
+                let patients = await Patient.find({admit_doctor: req.query.admit_doctor});
+                return jsonResponse(res, 200, "Success",patients);
+            }
+            return jsonResponse(res,404,"Failed","No doctor was specified")
+        }catch(error){
+            return jsonReqponse(res, 400, "Failed", error.message);
         }
     }
 }

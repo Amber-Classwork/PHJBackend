@@ -20,7 +20,7 @@ let patientSchema = new Schema({
     allergies: {type:String},
     nationality:{type:String},
     admission_date:{type: String},
-    admit_doctor: {type:String},
+    admit_doctor: {type:Schema.Types.ObjectId, ref:"Doctor"},
 
 }, {timestamps:true});
 // Will create timestamps for the createdAt and updatedAt time;
