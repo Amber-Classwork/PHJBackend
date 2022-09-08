@@ -18,7 +18,6 @@ class DoctorsController{
             let email = data.email;
             let password = data.password;
             let doctor = await Doctor.findOne({"email": email});
-            console.log(doctor)
             if(doctor){
                 let isAuthenticated = await bcrypt.compare(password,doctor.password)
                 if(isAuthenticated){
@@ -71,9 +70,13 @@ class DoctorsController{
         try{
             let id = req.params.id;
             let data = req.body;
+            if(Object.keys(data).length < 1){
+                throw new Error("No data to update the doctor with")
+            }
             data.address = {street: data.street, city: data.city, parish: data.parish};
 
             let doctor = await Doctor.findByIdAndUpdate(id, data, {new:true});
+            
             jsonResponse(res, 200,"Success", "Successfully updated", doctor)
         }catch(error){
             jsonResponse(res, 400, "Failed", error.message);
@@ -86,7 +89,10 @@ class DoctorsController{
          static deleteDoctorById = async (req, res, next) =>{
             try{
                 let id = req.params.id;
-                await Doctor.findByIdAndDelete(id);
+                let doctor = await Doctor.findByIdAndDelete(id);
+                if(!doctor){
+                    throw new Error("No doctor was found to delete")
+                }
                 jsonResponse(res,200, "Success", "Successfully Deleted")
             }catch(error){
                 jsonResponse(res, 400, "Failed", error.message)
@@ -99,6 +105,9 @@ class DoctorsController{
          static createDoctor =  async (req, res, next)=>{
             try{
                 let data = req.body;
+                if(Object.keys(data).length < 1){
+                    throw new Error("No data passed in the request body");
+                }
                 data.address = {street: data.street, city: data.city, parish: data.parish};
 
                 let doctor = new Doctor(data);
@@ -121,6 +130,7 @@ class DoctorsController{
                     let doctors = await Doctor.find({"department":department})
                     return jsonResponse(res, 200, "Success", "Successfully Retrieved", doctors)
                 }
+                return jsonResponse(res,404, "Failed", "No department was specified");
             }catch(error){
                 jsonResponse(res, 400, "Failed", error.message);
             }

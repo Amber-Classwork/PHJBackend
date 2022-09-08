@@ -38,7 +38,7 @@ class AppointmentController{
             if(appointment){
                 return jsonResponse(res, 200, "Success", "Successfully Retrieved", appointment);
             }
-            return jsonResponse(res, 400, "Failed","No Appointment exist with that information");
+            return jsonResponse(res, 404, "Failed","No Appointment exist with that information");
         }catch(error){
             jsonResponse(res, 400, "Failed", error.message)
         }
@@ -50,6 +50,7 @@ class AppointmentController{
     static createAppointment = async(req, res, next)=>{
         try{
             let data = req.body;
+            if(Object.keys(data).length < 1) throw new Error("Appointment does not contain any data")
             data.doctor = ObjectId(data.doctor);
             if(!data.userId){
                 data.userId = new ObjectId();
@@ -71,7 +72,7 @@ class AppointmentController{
            let id = req.params.id;
            let data = req.body;
            if(Object.keys(req.body).length == 0){
-            return res.json({message: "There is no data passed to update the patient "})
+            throw new Error("There is no data passed to update the patient ");
            }else{
                 data = {street: data.street, city: data.city, parish: data.parish};
 
@@ -91,10 +92,13 @@ class AppointmentController{
     static deleteAppointment = async(req,res, next)=>{
         try{
             let id = req.params.id;
-            let count = await Appointment.findByIdAndDelete(id);
-            jsonResponse(res, 200, "Success", "Successfully Deleted");
+            let appointment = await Appointment.findByIdAndDelete(id);
+            if(!appointment){
+                throw new Error("Appointment was not found with this id");
+            }
+            jsonResponse(res, 200, "Success", "Successfully Deleted", appointment);
         }catch(error){
-            jsonResponse(res, 400, "Failed", error.message)
+            jsonResponse(res, 400, "Failed", error.message);
         }
     }
 

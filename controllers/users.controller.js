@@ -25,10 +25,10 @@ class UsersController{
                     }
                     return jsonResponse(res,200,"Success","Successfully Logged in",data);
                 }
-                return jsonResponse(res,401,"Failed","Password is Incorrect");
+                return jsonResponse(res,400,"Failed","Password is Incorrect");
             }
         }catch(error){
-            jsonResponse(res, 400,"Failed", error.message);
+            jsonResponse(res, 404,"Failed", error.message);
         }
     }
     /**
@@ -67,6 +67,9 @@ class UsersController{
         try{
             let id = req.params.id;
             let data = req.body;
+            if(Object.keys(data).length < 1){
+                throw new Error("There is no data to update file with");
+            }
             // Checks to see if a file was uploaded if it was then it will set the location as the url, if not it removes that field from the data so it won't be overridden
             data.imageUrl = (req.file) ? req.file.location : undefined;
             if(data.password === undefined){
@@ -87,8 +90,11 @@ class UsersController{
          static deleteUser = async (req, res, next) =>{
             try{
                 let id = req.params.id;
-                await User.findByIdAndDelete(id);
-                jsonResponse(res,200, "Success", "Successfully Deleted")
+                let deletedUser = await User.findByIdAndDelete(id);
+                if(!delCount){
+                    return jsonResponse(res,404, "Failed", "User with that id does not exist")
+                }
+                jsonResponse(res,200, "Success", "Successfully Deleted", deletedUser)
             }catch(error){
                 jsonResponse(res, 400, "Failed", error.message)
             }
@@ -101,6 +107,9 @@ class UsersController{
             try{
                 let data = req.body;
                 data.address = {street: data.street, city: data.city, parish: data.parish};
+                if(Object.keys(data).length < 1){
+                    throw new Error("Data to create user is empty");
+                }
 
                 let user = new User(data);
                 if(!user.password){
@@ -111,7 +120,7 @@ class UsersController{
                 return jsonResponse(res, 200, "Success", "Successfully Created User", user);
             }catch(error){
                 console.log(error)
-                jsonResponse(res, 400, "Failed", "Failure");
+                jsonResponse(res, 400, "Failed", error.message);
             }
         }
 
