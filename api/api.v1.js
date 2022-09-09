@@ -25,6 +25,10 @@ router.get("/", (req, res)=>{
                 info: "This resource manages the appointment created by either user or doctor",
                 operations: ["GET", "POST", "PATCH", "DELETE"]
             },
+            "/records": {
+                info: "This resource manages the records created by either user or doctor",
+                operations: ["GET", "POST", "PATCH", "DELETE"]
+            },
         }
     })
 });
