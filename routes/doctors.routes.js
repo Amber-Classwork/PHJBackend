@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const DoctorsController = require("../controllers/doctors.controllers");
-const uploadFileToS3 = require("../utilities/s3");
+const {uploadFileToS3} = require("../utilities/s3");
 router
     .route("/")
     .get(DoctorsController.getAllDoctors)
