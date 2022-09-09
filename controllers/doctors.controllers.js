@@ -22,7 +22,12 @@ class DoctorsController{
                 let isAuthenticated = await bcrypt.compare(password,doctor.password)
                 if(isAuthenticated){
                     let token = generateJWTToken({_id:doctor._id,username:doctor.username, email: doctor.email, role:"doctor"},"3600")
-                    return jsonResponse(res,200,"Success","Successfully Logged in",token);
+
+                    let data = {
+                        user,
+                        token
+                    }
+                    return jsonResponse(res,200,"Success","Successfully Logged in",data);
                 }
                 return jsonResponse(res,401,"Failed","Credentials are Incorrect");
             }
@@ -93,7 +98,7 @@ class DoctorsController{
                 if(!doctor){
                     throw new Error("No doctor was found to delete")
                 }
-                jsonResponse(res,200, "Success", "Successfully Deleted")
+                jsonResponse(res,200, "Success", "Successfully Deleted", doctor)
             }catch(error){
                 jsonResponse(res, 400, "Failed", error.message)
             }
@@ -105,7 +110,6 @@ class DoctorsController{
          static createDoctor =  async (req, res, next)=>{
             try{
                 let data = req.body;
-                let file = req.file;
                 if(Object.keys(data).length < 1){
                     throw new Error("No data passed in the request body");
                 }
@@ -120,7 +124,7 @@ class DoctorsController{
                 
                 doctor.password = await bcrypt.hash(doctor.password, 10);
                 await doctor.save()
-                return jsonResponse(res, 200, "Success", "Successfully created doctor")
+                return jsonResponse(res, 200, "Success", "Successfully created doctor", doctor)
             }catch(error){
                 jsonResponse(res, 400, "Failed", error.message);
             }
