@@ -17,14 +17,15 @@ class DoctorsController{
             let data = req.body;
             let email = data.email;
             let password = data.password;
-            let doctor = await Doctor.findOne({"email": email});
+            console.log(data.email)
+            let doctor = await Doctor.findOne({email: email});
             if(doctor){
                 let isAuthenticated = await bcrypt.compare(password,doctor.password)
                 if(isAuthenticated){
                     let token = generateJWTToken({_id:doctor._id,username:doctor.username, email: doctor.email, role:"doctor"},"3600")
 
                     let data = {
-                        user,
+                        doctor,
                         token
                     }
                     return jsonResponse(res,200,"Success","Successfully Logged in",data);
