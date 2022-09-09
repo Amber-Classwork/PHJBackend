@@ -105,9 +105,12 @@ class DoctorsController{
          static createDoctor =  async (req, res, next)=>{
             try{
                 let data = req.body;
+                let file = req.file;
                 if(Object.keys(data).length < 1){
                     throw new Error("No data passed in the request body");
                 }
+                data.imageUrl = (req.file) ? req.file.location : undefined;
+
                 data.address = {street: data.street, city: data.city, parish: data.parish};
 
                 let doctor = new Doctor(data);
