@@ -18,7 +18,10 @@ class UsersController{
             if(user){
                 if(await user.passwordCorrect(password)){
                     // console.log(user.passwordCorrect(password))
-                    let token = generateJWTToken({_id:user._id,username:user.username, email: user.email, role:"user"},"3600")
+                    let token = generateJWTToken({_id:user._id,username:user.username, email: user.email, role:"user"},"3600");
+                    user.password = undefined;
+                    user.createdAt = undefined;
+                    user.updatedAt = undefined;
                     let data = {
                         user,
                         token
@@ -37,7 +40,7 @@ class UsersController{
      */
     static getAllUsers = async (req, res, next)=>{
         try{
-            let users = await User.find();
+            let users = await User.find({}, {createdAt: 0, password: 0, updatedAt: 0});
 
             return jsonResponse(res,200, "Success", "Successfully retrieved", users)
 
@@ -53,7 +56,8 @@ class UsersController{
      static getUserById = async (req, res, next)=>{
         try{
             let id = req.params.id;
-            let user = await User.findById(id, {password: 0});
+            let user = await User.findById(id, {password: 0, createdAt: 0, updatedAt: 0});
+            if(!user) throw new Error("No user found with that id")
             return jsonResponse(res, 200,"Success", "Successfully retrieved", user)
         }catch(error){
             jsonResponse(res, 500, "Failed", error.message)
@@ -75,9 +79,12 @@ class UsersController{
             if(data.password === undefined){
                 delete data.password;
             }
-            data.address = {street: data.street, city: data.city, parish: data.parish};
-
-            let user = await User.findByIdAndUpdate(id, data, {new:true});
+            if(!data.address){
+                data.address = {street: data.street, city: data.city, parish: data.parish};
+            }
+            let user = await User.findByIdAndUpdate(id, data, {new:true},);
+            if(!user) throw new Error("No user found with this id, Unable to update this user");
+            user.password = undefined;
             jsonResponse(res, 200,"Success", "Successfully updated", user)
         }catch(error){
             jsonResponse(res, 400, "Failed", error.message);
@@ -91,9 +98,10 @@ class UsersController{
             try{
                 let id = req.params.id;
                 let deletedUser = await User.findByIdAndDelete(id);
-                if(!delCount){
+                if(!deletedUser){
                     return jsonResponse(res,404, "Failed", "User with that id does not exist")
                 }
+                deletedUser.password = undefined;
                 jsonResponse(res,200, "Success", "Successfully Deleted", deletedUser)
             }catch(error){
                 jsonResponse(res, 400, "Failed", error.message)
