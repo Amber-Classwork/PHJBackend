@@ -2,6 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const Appointment = require("../schemas/appointment.schema");
 const {ObjectId} = require("mongoose").Types;
 const {jsonResponse} = require("../utilities/jsonResponse");
+const { sendMail } = require("../utilities/sendMail");
 class AppointmentController{
 
         /**
@@ -58,6 +59,12 @@ class AppointmentController{
                 data.userId = ObjectId(data.userId);
             }
             let newAppointment = await new Appointment(data).save();
+
+            sendMail({
+                recipient:newAppointment.email,
+                text: "Thank you for making an appointment.",
+                subject:"New Appointment was made"
+            })
             jsonResponse(res, 200, "Success", "Successfully Created Appointment", newAppointment);
         }catch(error){
             jsonResponse(res, 400, "Failed", error.message)
