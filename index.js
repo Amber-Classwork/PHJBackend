@@ -38,7 +38,7 @@ app.listen(PORT, (error)=>{
             console.log(error.message);
             throw error.message;
         }
-        console.log("Server is Connected with Database");
+        console.log("Server is Connected with Database on port", PORT);
 
         
     });
