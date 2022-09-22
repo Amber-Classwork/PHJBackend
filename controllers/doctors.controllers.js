@@ -17,7 +17,6 @@ class DoctorsController{
             let data = req.body;
             let email = data.email;
             let password = data.password;
-            console.log(data.email)
             let doctor = await Doctor.findOne({email: email});
             if(doctor){
                 let isAuthenticated = await bcrypt.compare(password,doctor.password)
