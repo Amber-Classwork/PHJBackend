@@ -9,10 +9,10 @@ const multerS3 = require("multer-s3");
 
 // create a new instance of s3 bucket
 
-const bucketName = process.env.AWS_BUCKET_NAME;
-const region = process.env.AWS_BUCKET_REGION;
-const accessKeyId = process.env.AWS_ACCESS_KEY;
-const secretAccessKey = process.env.AWS_SECRET_KEY;
+const bucketName = process.env.AMZ_BUCKET_NAME;
+const region = process.env.AMZ_BUCKET_REGION;
+const accessKeyId = process.env.AMZ_ACCESS_KEY;
+const secretAccessKey = process.env.AMZ_SECRET_KEY;
 
 const s3 = new AWS.S3({
     accessKeyId,
